@@ -11,7 +11,7 @@
 
 int main(int argc, char *argv[])
 {
-    uint8_t *h_a, *h_b;
+    uint8_t *h_a, *h_b , *h_c;
     int w, h;
     size_t n;
     w = 320;
@@ -19,11 +19,12 @@ int main(int argc, char *argv[])
     n = w * h;
     h_a = new uint8_t[w * h];
     h_b = new uint8_t[w * h];
+    h_c = new uint8_t[w * h];
 
     // Initialize test data on host
     for(int i = 0; i < n; i++ )
     {
-        h_a[i] = sinf(i)*sinf(i);
+        h_a[i] = i % 256;
     }
 
     timespec start, end;
@@ -47,7 +48,7 @@ int main(int argc, char *argv[])
 #if defined(__ARM_NEON__) || defined(__aarch64__)
     std::cout << std::endl << "=== Testing neon erode 3x3" << std::endl;
     clock_gettime(CLOCK_MONOTONIC, &start);
-    erode3x3_neon(h_a, h_b, w, h);
+    erode3x3_neon(h_a, h_c, w, h);
     clock_gettime(CLOCK_MONOTONIC, &end);
 
     start_ns = start.tv_sec * 1000000000LL + start.tv_nsec;
@@ -55,11 +56,23 @@ int main(int argc, char *argv[])
     diff_ns = end_ns - start_ns;
 
     std::cout << "CPU Wall Time spent: " << diff_ns << "ns" << std::endl;
+
+    // compare neon and opencl implementation
+    for (int j = 1; j < h-1; j++) {
+        for (int i = 1; i < (w-2)/8*8 + 1; i++) {
+            if (h_b[j*w + i] != h_c[j*w + i]) {
+                std::cout << "Not equal" << std::endl;
+                return 1;
+            }
+        }
+    }
+    std::cout << "Neon and opencl implementation equals" << std::endl;
 #endif
 
  
     delete[] h_a;
     delete[] h_b;
+    delete[] h_c;
  
     return 0;
 }

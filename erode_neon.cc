@@ -55,6 +55,8 @@ erode3x3_neon(uint8_t *in_data, uint8_t *out_data, int w, int h)
 {
 	int i, j;
 	// Ignore edge for the mean time
+	in_data += w;
+	out_data += w;
 	for (j = 1; j < h - 1; j++) {
 		for (i = 1; i < w - 8; i+=8) {
 			erode3x3_neon_kernel(in_data+i, out_data+i, w);
