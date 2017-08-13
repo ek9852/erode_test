@@ -8,6 +8,9 @@
 #if defined(__ARM_NEON__) || defined(__aarch64__)
 #include "erode_neon.h"
 #endif
+#if defined(__ARM_NEON__) && !defined(__aarch64__) && !defined(__ANDROID__)
+#include "erode_halide.h"
+#endif
 
 int main(int argc, char *argv[])
 {
@@ -69,6 +72,29 @@ int main(int argc, char *argv[])
     std::cout << "Neon and opencl implementation equals" << std::endl;
 #endif
 
+#if defined(__ARM_NEON__) && !defined(__aarch64__) && !defined(__ANDROID__)
+    std::cout << std::endl << "=== Testing halide erode 3x3" << std::endl;
+    clock_gettime(CLOCK_MONOTONIC, &start);
+    erode3x3_halide(h_a, h_c, w, h);
+    clock_gettime(CLOCK_MONOTONIC, &end);
+
+    start_ns = start.tv_sec * 1000000000LL + start.tv_nsec;
+    end_ns = end.tv_sec * 1000000000LL + end.tv_nsec;
+    diff_ns = end_ns - start_ns;
+
+    std::cout << "CPU Wall Time spent: " << diff_ns << "ns" << std::endl;
+
+    // compare and opencl implementation
+    for (int j = 1; j < h-1; j++) {
+        for (int i = 1; i < (w-2)/8*8 + 1; i++) {
+            if (h_b[j*w + i] != h_c[j*w + i]) {
+                std::cout << "Not equal" << std::endl;
+                return 1;
+            }
+        }
+    }
+    std::cout << "Halide and opencl implementation equals" << std::endl;
+#endif
  
     delete[] h_a;
     delete[] h_b;
