@@ -168,9 +168,9 @@ erode3x3_cl(uint8_t *in_data, uint8_t *out_data, int w, int h)
 
 	ocl_event_times(event, "Kernel Exec ");
  
-        // Read back d_b
-	if (!useHostPtr)
-	        queue.enqueueReadBuffer(d_b, CL_TRUE, 0, bytes, out_data);
+        // Read back d_b (it turns out that even with use host ptr, we still need this
+        // at least on Adreno and Mali GPU)
+	queue.enqueueReadBuffer(d_b, CL_TRUE, 0, bytes, out_data);
 #ifdef __CL_ENABLE_EXCEPTIONS
     } catch (cl::Error err) {
          std::cerr
