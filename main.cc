@@ -11,6 +11,9 @@
 #if defined(__ARM_NEON__) && !defined(__aarch64__) && !defined(__ANDROID__)
 #include "erode_halide.h"
 #endif
+#if defined(WITH_OPENGLES)
+#include "erode_gl.h"
+#endif
 
 int main(int argc, char *argv[])
 {
@@ -64,7 +67,8 @@ int main(int argc, char *argv[])
     for (int j = 1; j < h-1; j++) {
         for (int i = 1; i < (w-2)/8*8 + 1; i++) {
             if (h_b[j*w + i] != h_c[j*w + i]) {
-                std::cout << "Not equal" << std::endl;
+                std::cout << "Not equal @" << i << "," << j << std::endl;
+                std::cout << " [" <<  (int)h_b[j*w + i] << "," <<  (int)h_c[j*w + i] << "]" << std::endl;
                 return 1;
             }
         }
@@ -88,14 +92,41 @@ int main(int argc, char *argv[])
     for (int j = 1; j < h-1; j++) {
         for (int i = 1; i < (w-2)/8*8 + 1; i++) {
             if (h_b[j*w + i] != h_c[j*w + i]) {
-                std::cout << "Not equal" << std::endl;
+                std::cout << "Not equal @" << i << "," << j << std::endl;
+                std::cout << " [" <<  (int)h_b[j*w + i] << "," <<  (int)h_c[j*w + i] << "]" << std::endl;
                 return 1;
             }
         }
     }
     std::cout << "Halide and opencl implementation equals" << std::endl;
 #endif
- 
+
+#ifdef WITH_OPENGLES
+    std::cout << "=== Testing gl erode 3x3" << std::endl;
+    erode3x3_gl_init(w, h);
+    clock_gettime(CLOCK_MONOTONIC, &start);
+    erode3x3_gl(h_a, h_c, w, h);
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    erode3x3_gl_destroy();
+
+    start_ns = start.tv_sec * 1000000000LL + start.tv_nsec;
+    end_ns = end.tv_sec * 1000000000LL + end.tv_nsec;
+    diff_ns = end_ns - start_ns;
+
+    std::cout << "CPU Wall Time spent: " << diff_ns << "ns" << std::endl;
+
+    for (int j = 1; j < h-1; j++) {
+        for (int i = 1; i < (w-2)/8*8 + 1; i++) {
+            if (h_b[j*w + i] != h_c[j*w + i]) {
+                std::cout << "Not equal @" << i << "," << j;
+                std::cout << " [" <<  (int)h_b[j*w + i] << "," <<  (int)h_c[j*w + i] << "]" << std::endl;
+                return 1;
+            }
+        }
+    }
+    std::cout << "opengl and opencl implementation equals" << std::endl;
+#endif
+
     delete[] h_a;
     delete[] h_b;
     delete[] h_c;
