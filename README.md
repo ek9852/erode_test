@@ -1,4 +1,4 @@
-OpenCL/neon erode (3x3) test program
+OpenCL/OpenGL/neon erode (3x3) performance test program
 =============================================================================
 
 This package implements erode 3x3 (edge case not handled propertly currently)
@@ -43,3 +43,25 @@ To run:
     
     === Testing neon erode 3x3
     CPU Wall Time spent: 193750ns
+
+    === Testing gl erode 3x3
+    EGL initialized. Version: 1.4
+    Num of configs matching: 2
+    [0] Config:
+      Sizes: 32[8,8,8][0,8,0]
+      Bind: [0,0] BufferType: [12430] Config: [12344,9,4]
+      Depth: [0]Level: [0]
+      Swap interval: [10,1] Native: [0,0]
+      Renderable: [4] Samples: [0,0]
+      Stencil: [0], Surface: [5]
+      Tranparent: 12344[0,0,0]
+    [1] Config:
+      Sizes: 32[8,8,8][0,8,0]
+      Bind: [0,0] BufferType: [12430] Config: [12344,8,4]
+      Depth: [24]Level: [0]
+      Swap interval: [10,1] Native: [0,0]
+      Renderable: [4] Samples: [0,0]
+      Stencil: [8], Surface: [5]
+      Tranparent: 12344[0,0,0]
+    Extension support: GL_OES_rgb8_rgba8 GL_OES_depth24 GL_OES_vertex_half_float GL_OES_texture_float GL_OES_texture_half_float GL_OES_element_indexg
+    CPU Wall Time spent: 19153090ns
