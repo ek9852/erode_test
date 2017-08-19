@@ -1,7 +1,9 @@
-OpenCL/OpenGL/neon erode (3x3) performance test program
+OpenCL/OpenGL/neon/Halide erode (3x3) performance test program
 =============================================================================
 
-This package implements erode 3x3 (edge case not handled propertly currently)
+This package implements erode 3x3
+For OpenCL, the fours edges are not handled correctly.
+while other implements (OpenGL/neon/Halide) are handled correctly.
 
 Build
 -----
