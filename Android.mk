@@ -11,7 +11,7 @@ include $(BUILD_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
 
-LOCAL_SRC_FILES := main.cc pmu_utils.cc erode_cl.cc erode_gl.cc
+LOCAL_SRC_FILES := main.cc pmu_utils.cc erode.cc erode_cl.cc erode_gl.cc
 ifeq ($(TARGET_ARCH), $(filter $(TARGET_ARCH), arm arm64))
 LOCAL_ARM_NEON := true
 LOCAL_SRC_FILES += erode_neon.cc
