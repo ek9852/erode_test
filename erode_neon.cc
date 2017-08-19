@@ -106,7 +106,7 @@ erode3x3_neon(uint8_t *in_data, uint8_t *out_data, int w, int h)
 
 	// top row
 	erode3x3_neon_kernel(in_data, out_data, w, true, true, false, false);
-	for (i = 1; i < w - 8; i+=8) {
+	for (i = 8; i < w - 8; i+=8) {
 		erode3x3_neon_kernel(in_data+i, out_data+i, w, false, true, false, false);
 	}
 	// move backward last one, so that it align to 8 bytes
@@ -128,7 +128,7 @@ erode3x3_neon(uint8_t *in_data, uint8_t *out_data, int w, int h)
 
 	// bottom row
 	erode3x3_neon_kernel(in_data, out_data, w, true, false, false, true);
-	for (i = 1; i < w - 8; i+=8) {
+	for (i = 8; i < w - 8; i+=8) {
 		erode3x3_neon_kernel(in_data+i, out_data+i, w, false, false, false, true);
 	}
 	// move backward last one, so that it align to 8 bytes
