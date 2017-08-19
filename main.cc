@@ -14,6 +14,9 @@
 #if defined(WITH_OPENGLES)
 #include "erode_gl.h"
 #endif
+#if defined(__linux__)
+#include "pmu_utils.h"
+#endif
 
 int main(int argc, char *argv[])
 {
@@ -32,6 +35,14 @@ int main(int argc, char *argv[])
     {
         h_a[i] = i % 256;
     }
+
+#ifdef __linux__
+    bool use_pmu = false;
+    // init pmu counter if exists
+    if (setup_pmu_counters() == 0) {
+        use_pmu = 1;
+    }
+#endif
 
     timespec start, end;
     int64_t start_ns;
@@ -54,8 +65,19 @@ int main(int argc, char *argv[])
 #if defined(__ARM_NEON__) || defined(__aarch64__)
     std::cout << std::endl << "=== Testing neon erode 3x3" << std::endl;
     clock_gettime(CLOCK_MONOTONIC, &start);
+
+#ifdef __linux__
+    if (use_pmu) start_pmu_counters();
+#endif
     erode3x3_neon(h_a, h_c, w, h);
+#ifdef __linux__
+    if (use_pmu) stop_pmu_counters();
+#endif
     clock_gettime(CLOCK_MONOTONIC, &end);
+
+#ifdef __linux__
+    if (use_pmu) print_pmu_counters();
+#endif
 
     start_ns = start.tv_sec * 1000000000LL + start.tv_nsec;
     end_ns = end.tv_sec * 1000000000LL + end.tv_nsec;
@@ -79,8 +101,18 @@ int main(int argc, char *argv[])
 #if defined(__ARM_NEON__) && !defined(__aarch64__) && !defined(__ANDROID__)
     std::cout << std::endl << "=== Testing halide erode 3x3" << std::endl;
     clock_gettime(CLOCK_MONOTONIC, &start);
+#ifdef __linux__
+    if (use_pmu) start_pmu_counters();
+#endif
     erode3x3_halide(h_a, h_c, w, h);
+#ifdef __linux__
+    if (use_pmu) stop_pmu_counters();
+#endif
     clock_gettime(CLOCK_MONOTONIC, &end);
+
+#ifdef __linux__
+    if (use_pmu) print_pmu_counters();
+#endif
 
     start_ns = start.tv_sec * 1000000000LL + start.tv_nsec;
     end_ns = end.tv_sec * 1000000000LL + end.tv_nsec;

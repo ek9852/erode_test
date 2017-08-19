@@ -17,6 +17,10 @@ if (${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm")
     target_link_libraries(erode_test ${PROJECT_SOURCE_DIR}/halide/erode_arm_32_linux.o pthread ${CMAKE_DL_LIBS} )
 endif ()
 
+if(UNIX AND NOT APPLE)
+    target_sources(erode_test PRIVATE pmu_utils.cc)
+endif()
+
 find_package(OpenGLES)
 find_package(EGL)
 if (OPENGLES_FOUND AND EGL_FOUND)
