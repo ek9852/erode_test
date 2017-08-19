@@ -7,7 +7,7 @@
 
 find_package(PkgConfig)
 if( PKG_CONFIG_FOUND )
-   pkg_check_modules( PKG_GLESV2 REQUIRED "glesv2" )
+   pkg_check_modules( PKG_GLESV2 "glesv2" )
 
    set ( OPENGLES_INCLUDE_DIRS ${PKG_GLESV2_INCLUDE_DIRS} )
    foreach ( i ${PKG_GLESV2_LIBRARIES} )

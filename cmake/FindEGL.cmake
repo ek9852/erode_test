@@ -7,7 +7,7 @@
 
 find_package(PkgConfig)
 if( PKG_CONFIG_FOUND )
-   pkg_check_modules( PKG_EGL REQUIRED "egl" )
+   pkg_check_modules( PKG_EGL "egl" )
 
    set ( EGL_INCLUDE_DIRS ${PKG_EGL_INCLUDE_DIRS} )
    foreach ( i ${PKG_EGL_LIBRARIES} )
