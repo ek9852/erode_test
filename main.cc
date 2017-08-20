@@ -18,6 +18,9 @@
 #if defined(__linux__)
 #include "pmu_utils.h"
 #endif
+#if defined(__x86_64__)
+#include "erode_sse.h"
+#endif
 
 int main(int argc, char *argv[])
 {
@@ -97,6 +100,42 @@ int main(int argc, char *argv[])
         }
     }
     std::cout << "C and opencl implementation equals" << std::endl;
+
+#if defined(__x86_64__)
+    std::cout << std::endl << "=== Testing sse erode 3x3" << std::endl;
+    clock_gettime(CLOCK_MONOTONIC, &start);
+
+#ifdef __linux__
+    if (use_pmu) start_pmu_counters();
+#endif
+    erode3x3_sse(h_a, h_c, w, h);
+#ifdef __linux__
+    if (use_pmu) stop_pmu_counters();
+#endif
+    clock_gettime(CLOCK_MONOTONIC, &end);
+
+#ifdef __linux__
+    if (use_pmu) print_pmu_counters();
+#endif
+
+    start_ns = start.tv_sec * 1000000000LL + start.tv_nsec;
+    end_ns = end.tv_sec * 1000000000LL + end.tv_nsec;
+    diff_ns = end_ns - start_ns;
+
+    std::cout << "CPU Wall Time spent: " << diff_ns << "ns" << std::endl;
+
+    // compare C and sse implementation
+    for (int j = 0; j < h; j++) {
+        for (int i = 0; i < w; i++) {
+            if (h_b[j*w + i] != h_c[j*w + i]) {
+                std::cout << "Not equal @" << i << "," << j << std::endl;
+                std::cout << " [" <<  (int)h_b[j*w + i] << "," <<  (int)h_c[j*w + i] << "]" << std::endl;
+                return 1;
+            }
+        }
+    }
+    std::cout << "SSE and C implementation equals" << std::endl;
+#endif
 
 #if defined(__ARM_NEON__) || defined(__aarch64__)
     std::cout << std::endl << "=== Testing neon erode 3x3" << std::endl;
