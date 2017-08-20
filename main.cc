@@ -160,7 +160,7 @@ int main(int argc, char *argv[])
 
     std::cout << "CPU Wall Time spent: " << diff_ns << "ns" << std::endl;
 
-    // compare neon and opencl implementation
+    // compare neon and c implementation
     for (int j = 0; j < h; j++) {
         for (int i = 0; i < w; i++) {
             if (h_b[j*w + i] != h_c[j*w + i]) {
