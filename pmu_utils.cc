@@ -61,6 +61,7 @@ void start_pmu_counters(void)
 	/* Only need to start and stop the group leader */
 	ioctl(instructions_fd, PERF_EVENT_IOC_RESET, 0);
 	ioctl(cycles_fd, PERF_EVENT_IOC_RESET, 0);
+    ioctl(instructions_fd, PERF_EVENT_IOC_ENABLE);
 	ioctl(cycles_fd, PERF_EVENT_IOC_ENABLE);
 }
 
