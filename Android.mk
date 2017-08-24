@@ -18,9 +18,9 @@ LOCAL_SRC_FILES += erode_neon.cc
 endif
 LOCAL_MODULE := erode_test
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/include $(LOCAL_PATH)/opencl_stubs_include
-LOCAL_CPPFLAGS := -std=gnu++0x -Wall -fPIE -DWITH_OPENGLES
+LOCAL_CPPFLAGS := -std=gnu++0x -Wall -fPIE -fopenmp -DWITH_OPENGLES -DWITH_OPENMP
 LOCAL_CPP_FEATURES := exceptions
-LOCAL_LDLIBS := -L$(SYSROOT)/usr/lib -llog -fPIE -pie -lGLESv2 -lEGL
+LOCAL_LDLIBS := -L$(SYSROOT)/usr/lib -llog -fPIE -pie -lGLESv2 -lEGL -fopenmp
 LOCAL_SHARED_LIBRARIES := libOpenCL
 
 include $(BUILD_EXECUTABLE)
