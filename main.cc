@@ -22,6 +22,9 @@
 #if defined(__x86_64__)
 #include "erode_sse.h"
 #endif
+#if defined(__ANDROID__)
+#include "erode_rs.h"
+#endif
 
 int main(int argc, char *argv[])
 {
@@ -49,6 +52,30 @@ int main(int argc, char *argv[])
     erode3x3(h_a, h_b, w, h);
     stop_pmu_counters();
     print_pmu_counters();
+
+#ifdef __ANDROID__
+    std::cout << "=== Testing renderscript erode 3x3" << std::endl;
+    erode3x3_rs_init(w, h);
+    start_pmu_counters();
+    erode3x3_rs(h_a, h_c, w, h);
+    stop_pmu_counters();
+    print_pmu_counters();
+    erode3x3_rs_destroy();
+
+    // compare c and renderscript implementation
+    // TODO opencl does not handle edge case currently, skip those
+    for (int j = 1; j < h-1; j++) {
+        for (int i = 1; i < (w-2)/8*8 + 1; i++) {
+            if (h_b[j*w + i] != h_c[j*w + i]) {
+                std::cout << "Not equal @" << i << "," << j << std::endl;
+                std::cout << " [" <<  (int)h_b[j*w + i] << "," <<  (int)h_c[j*w + i] << "]" << std::endl;
+                return 1;
+            }
+        }
+    }
+    std::cout << "C and renderscript implementation equals" << std::endl;
+
+#endif
 
     std::cout << "=== Testing cl erode 3x3" << std::endl;
     erode3x3_cl_init(w, h, true);
