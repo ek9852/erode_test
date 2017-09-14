@@ -104,7 +104,6 @@ int main(int argc, char *argv[])
     start_pmu_counters();
     erode3x3_sse(h_a, h_c, w, h);
     stop_pmu_counters();
-    clock_gettime(CLOCK_MONOTONIC, &end);
     print_pmu_counters();
 
     // compare C and sse implementation
