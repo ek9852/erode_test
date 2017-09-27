@@ -3,13 +3,13 @@ OpenCL/OpenGL/NEON/SSE/Halide/Renderscript erode (3x3) performance test program
 
 This package implements erode 3x3
 For OpenCL, the fours edges are not handled correctly.
-while other implements (OpenGL/NEON/SSE/Halide) are handled correctly.
+while other implements (OpenGL/NEON/SSE/Halide/Renderscript) are handled correctly.
 
 Build
 -----
-For PC, use standard cmake
+For running in PC, use standard cmake
 
-To build with Android: (make sure your device have libOpenCL.so as it is not supported in AOSP)
+For running in Android, use: (make sure your device have libOpenCL.so as it is not supported in AOSP)
 
     export NDK_PROJECT_PATH=.
     ndk-build NDK_APPLICATION_MK=./Application.mk
