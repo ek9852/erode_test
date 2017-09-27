@@ -5,7 +5,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := libOpenCL
 LOCAL_SRC_FILES := opencl_stubs.c
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/include $(LOCAL_PATH)/opencl_stubs_include
-LOCAL_LDLIBS := -L$(SYSROOT)/usr/lib -llog -fPIE -pie
+LOCAL_LDLIBS := -L$(SYSROOT)/usr/lib -llog -fPIE
 
 include $(BUILD_SHARED_LIBRARY)
 
