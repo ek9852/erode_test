@@ -96,6 +96,7 @@ erode3x3_cl_init(int w, int h, bool use_host_ptr)
         std::cout << "Device Max Clock Frequency: " << device.getInfo<CL_DEVICE_MAX_CLOCK_FREQUENCY>() << std::endl;
         std::cout << "Device Max Allocateable Memory: " << device.getInfo<CL_DEVICE_MAX_MEM_ALLOC_SIZE>() << std::endl;
         std::cout << "Device Local Memory: " << device.getInfo<CL_DEVICE_LOCAL_MEM_SIZE>() << std::endl;
+        std::cout << "Device max work item dims: " << device.getInfo< CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS>() << std::endl;
         std::cout << "Device Available: " << device.getInfo< CL_DEVICE_AVAILABLE>() << std::endl;
  
         // Create command queue for first device
