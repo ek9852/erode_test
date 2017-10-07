@@ -16,9 +16,6 @@
 #if defined(WITH_OPENGLES)
 #include "erode_gl.h"
 #endif
-#if defined(__linux__)
-#include "pmu_utils.h"
-#endif
 #if defined(__x86_64__)
 #include "erode_sse.h"
 #endif
