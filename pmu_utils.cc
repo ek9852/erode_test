@@ -108,15 +108,16 @@ void print_pmu_counters(void)
             printf("CPI:\t\t%0.2f\n", (float)cycles/instructions);
     }
 
-    int64_t start_ns;
-    int64_t end_ns;
-    int64_t diff_ns;
+    static timespec delta;
+    delta.tv_sec = end.tv_sec - start.tv_sec;
+    delta.tv_nsec = end.tv_nsec - start.tv_nsec;
 
-    start_ns = start.tv_sec * 1000000000LL + start.tv_nsec;
-    end_ns = end.tv_sec * 1000000000LL + end.tv_nsec;
-    diff_ns = end_ns - start_ns;
+    if (delta.tv_nsec < 0) {
+        delta.tv_nsec += 1000000000LL;
+        delta.tv_sec -= 1;
+    }
 
-    std::cout << "CPU Wall Time spent: " << diff_ns << "ns" << std::endl;
+    std::cout << "CPU Wall Time spent: " << delta.tv_sec << "s and " << delta.tv_nsec << "ns" << std::endl;
 }
 #else
 int setup_pmu_counters(void)
@@ -141,14 +142,15 @@ void close_pmu_counters(void)
 
 void print_pmu_counters(void)
 {
-    int64_t start_ns;
-    int64_t end_ns;
-    int64_t diff_ns;
+    static timespec delta;
+    delta.tv_sec = end.tv_sec - start.tv_sec;
+    delta.tv_nsec = end.tv_nsec - start.tv_nsec;
 
-    start_ns = start.tv_sec * 1000000000LL + start.tv_nsec;
-    end_ns = end.tv_sec * 1000000000LL + end.tv_nsec;
-    diff_ns = end_ns - start_ns;
+    if (delta.tv_nsec < 0) {
+        delta.tv_nsec += 1000000000LL;
+        delta.tv_sec -= 1;
+    }
 
-    std::cout << "CPU Wall Time spent: " << diff_ns << "ns" << std::endl;
+    std::cout << "CPU Wall Time spent: " << delta.tv_sec << "s and " << delta.tv_nsec << "ns" << std::endl;
 }
 #endif
