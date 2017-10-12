@@ -88,6 +88,7 @@ erode3x3_cl_init(int w, int h, bool use_host_ptr)
 	cl::Device device  = devices[0];
 
         std::cout << "Device Name: " << device.getInfo<CL_DEVICE_NAME>() << std::endl;  
+        std::cout << "Device Version: " << device.getInfo<CL_DEVICE_VERSION>() << std::endl;  
         std::cout << "Device Type: " << device.getInfo<CL_DEVICE_TYPE>();
         std::cout << " (GPU: " << CL_DEVICE_TYPE_GPU << ", CPU: " << CL_DEVICE_TYPE_CPU << ", ACCEL: " << CL_DEVICE_TYPE_ACCELERATOR << ")" << std::endl;  
         std::cout << "Device Vendor: " << device.getInfo<CL_DEVICE_VENDOR>() << std::endl;
@@ -98,6 +99,7 @@ erode3x3_cl_init(int w, int h, bool use_host_ptr)
         std::cout << "Device Local Memory: " << device.getInfo<CL_DEVICE_LOCAL_MEM_SIZE>() << std::endl;
         std::cout << "Device max work item dims: " << device.getInfo< CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS>() << std::endl;
         std::cout << "Device Available: " << device.getInfo< CL_DEVICE_AVAILABLE>() << std::endl;
+        std::cout << "Device Extensions: " << device.getInfo< CL_DEVICE_EXTENSIONS>() << std::endl;
  
         // Create command queue for first device
 	queue = cl::CommandQueue(context, device, CL_QUEUE_PROFILING_ENABLE, &err);
