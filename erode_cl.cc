@@ -80,12 +80,12 @@ erode3x3_cl_init(int w, int h, bool use_host_ptr)
         // Get list of devices on default platform and create context
         cl_context_properties properties[] =
            { CL_CONTEXT_PLATFORM, (cl_context_properties)(platforms[0])(), 0};
-        context = cl::Context(CL_DEVICE_TYPE_DEFAULT, properties);
+        context = cl::Context(CL_DEVICE_TYPE_ALL, properties);
         std::vector<cl::Device> devices = context.getInfo<CL_CONTEXT_DEVICES>();
 
         std::cout << "Device size " << devices.size() << std::endl;
 
-	cl::Device device  = devices[0];
+        cl::Device device  = devices[0];
 
         std::cout << "Device Name: " << device.getInfo<CL_DEVICE_NAME>() << std::endl;  
         std::cout << "Device Version: " << device.getInfo<CL_DEVICE_VERSION>() << std::endl;  
@@ -97,7 +97,14 @@ erode3x3_cl_init(int w, int h, bool use_host_ptr)
         std::cout << "Device Max Clock Frequency: " << device.getInfo<CL_DEVICE_MAX_CLOCK_FREQUENCY>() << std::endl;
         std::cout << "Device Max Allocateable Memory: " << device.getInfo<CL_DEVICE_MAX_MEM_ALLOC_SIZE>() << std::endl;
         std::cout << "Device Local Memory: " << device.getInfo<CL_DEVICE_LOCAL_MEM_SIZE>() << std::endl;
+        std::cout << "Device max constant buffer size: " << device.getInfo<CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE>() << std::endl;
         std::cout << "Device max work item dims: " << device.getInfo< CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS>() << std::endl;
+        std::cout << "Device max work group size: " << device.getInfo< CL_DEVICE_MAX_WORK_GROUP_SIZE>() << std::endl;
+        std::vector<size_t> device_max_work_item_sizes = device.getInfo<CL_DEVICE_MAX_WORK_ITEM_SIZES>();
+        std::cout << "Max work item sizes are: ";
+        for (std::vector<size_t>::const_iterator i = device_max_work_item_sizes.begin(); i != device_max_work_item_sizes.end(); ++i)
+            std::cout << *i << ' ';
+        std::cout << std::endl;
         std::cout << "Device Available: " << device.getInfo< CL_DEVICE_AVAILABLE>() << std::endl;
         std::cout << "Device Extensions: " << device.getInfo< CL_DEVICE_EXTENSIONS>() << std::endl;
  
