@@ -95,6 +95,9 @@ erode3x3_tidsp_cl_init(int w, int h, bool use_host_ptr)
         std::cout << "Device Max Clock Frequency: " << device.getInfo<CL_DEVICE_MAX_CLOCK_FREQUENCY>() << std::endl;
         std::cout << "Device Max Allocateable Memory: " << device.getInfo<CL_DEVICE_MAX_MEM_ALLOC_SIZE>() << std::endl;
         std::cout << "Device Local Memory: " << device.getInfo<CL_DEVICE_LOCAL_MEM_SIZE>() << std::endl;
+        cl_ulong msmc_mem   = 0;
+        device.getInfo(CL_DEVICE_MSMC_MEM_SIZE_TI,  &msmc_mem);
+        std::cout << "Device TI MSMC Memory: " << msmc_mem << std::endl;
         std::cout << "Device max constant buffer size: " << device.getInfo<CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE>() << std::endl;
         std::cout << "Device max work item dims: " << device.getInfo< CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS>() << std::endl;
         std::cout << "Device max work group size: " << device.getInfo< CL_DEVICE_MAX_WORK_GROUP_SIZE>() << std::endl;
