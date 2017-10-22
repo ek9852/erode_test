@@ -97,6 +97,7 @@ __attribute__((reqd_work_group_size(1,1,1))) __kernel void tidsp_morph_erode (__
     rd_idx = (rd_idx + 1) & 3;
     ynext_ptr = (uchar *)img_lines[rd_idx];
     rd_idx = (rd_idx + 1) & 3;
+    // alignment for edma better performance ?!
     EdmaMgr_copyFast(evIN, (void*)(srcptr + fetch_rd_idx), (void*)&img_lines[rd_idx][1]);
     if ((offset+y+3) < rows) /* handle boundary case to just fetch previous row */
       fetch_rd_idx += cols;

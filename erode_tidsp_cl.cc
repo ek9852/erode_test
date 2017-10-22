@@ -23,8 +23,8 @@ static cl::CommandQueue queue;
 static cl::Buffer d_a;
 static cl::Buffer d_b;
 static cl::Context context;
-static bool useHostPtr;
 static int NUMCOMPUNITS;
+static int width, height;
 
 static void
 ocl_event_times(const cl::Event &ev, const char* name)
@@ -50,16 +50,17 @@ ocl_event_times(const cl::Event &ev, const char* name)
 }
 
 int
-erode3x3_tidsp_cl_init(int w, int h, bool use_host_ptr)
+erode3x3_tidsp_cl_init(int w, int h)
 {
     size_t bytes = w * h;
     cl_int err = CL_SUCCESS;
 
+    width = w;
+    height = h;
+
     assert(w % 8 == 0);
     assert(w < 2046);
     assert(h > 2);
-
-    useHostPtr = use_host_ptr;
 
 #ifdef __CL_ENABLE_EXCEPTIONS
     try {
@@ -97,6 +98,8 @@ erode3x3_tidsp_cl_init(int w, int h, bool use_host_ptr)
         std::cout << "Device Local Memory: " << device.getInfo<CL_DEVICE_LOCAL_MEM_SIZE>() << std::endl;
         cl_ulong msmc_mem   = 0;
         device.getInfo(CL_DEVICE_MSMC_MEM_SIZE_TI,  &msmc_mem);
+        assert(w * h * 2 <= msmc_mem);
+
         std::cout << "Device TI MSMC Memory: " << msmc_mem << std::endl;
         std::cout << "Device max constant buffer size: " << device.getInfo<CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE>() << std::endl;
         std::cout << "Device max work item dims: " << device.getInfo< CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS>() << std::endl;
@@ -113,10 +116,8 @@ erode3x3_tidsp_cl_init(int w, int h, bool use_host_ptr)
         queue = cl::CommandQueue(context, device, CL_QUEUE_PROFILING_ENABLE, &err);
 
         // Create device memory buffers
-        if (!use_host_ptr) {
-        	d_a = cl::Buffer(context, CL_MEM_READ_ONLY, bytes);
-        	d_b = cl::Buffer(context, CL_MEM_WRITE_ONLY, bytes);
-        }
+        d_a = cl::Buffer(context, CL_MEM_READ_ONLY|CL_MEM_USE_MSMC_TI, bytes);
+        d_b = cl::Buffer(context, CL_MEM_WRITE_ONLY|CL_MEM_USE_MSMC_TI, bytes);
  
         //Build kernel from source string
         cl::Program::Sources source(1,
@@ -138,27 +139,45 @@ erode3x3_tidsp_cl_init(int w, int h, bool use_host_ptr)
     return 0; 
 }
 
-void
-erode3x3_tidsp_cl(uint8_t *in_data, uint8_t *out_data, int w, int h)
+uint8_t*
+erode3x3_tidsp_cl_map_input_buf()
 {
-	size_t bytes = w * h;
+    return (uint8_t*) queue.enqueueMapBuffer(d_a, CL_TRUE, CL_MAP_WRITE,
+            0, width*height, NULL, NULL);
+}
+
+void
+erode3x3_tidsp_cl_unmap_input_buf(uint8_t *srcA)
+{
+    queue.enqueueUnmapMemObject(d_a, srcA, NULL, NULL);
+}
+
+uint8_t*
+erode3x3_tidsp_cl_map_output_buf()
+{
+    return (uint8_t*) queue.enqueueMapBuffer(d_b, CL_TRUE, CL_MAP_READ,
+            0, width*height, NULL, NULL);
+}
+
+void
+erode3x3_tidsp_cl_unmap_output_buf(uint8_t *srcB)
+{
+    queue.enqueueUnmapMemObject(d_b, srcB, NULL, NULL);
+}
+
+void
+erode3x3_tidsp_cl()
+{
+	size_t bytes = width * height;
 
 #ifdef __CL_ENABLE_EXCEPTIONS
     try {
 #endif
-	if (useHostPtr) {
-        	d_a = cl::Buffer(context, CL_MEM_READ_ONLY|CL_MEM_USE_HOST_PTR, bytes, in_data);
-        	d_b = cl::Buffer(context, CL_MEM_WRITE_ONLY|CL_MEM_USE_HOST_PTR, bytes, out_data);
-	} else {
-        	// Bind memory buffers
-        	queue.enqueueWriteBuffer(d_a, CL_TRUE, 0, bytes, in_data);
-	} 
-
         // Bind kernel arguments to kernel
         kernel.setArg(0, d_a);
         kernel.setArg(1, d_b);
-        kernel.setArg(2, w);
-        kernel.setArg(3, h);
+        kernel.setArg(2, width);
+        kernel.setArg(3, height);
  
         // Number of work items in each local work group
         cl::NDRange localSize(1);
@@ -177,11 +196,8 @@ erode3x3_tidsp_cl(uint8_t *in_data, uint8_t *out_data, int w, int h)
         // Block until kernel completion
         event.wait();
 
-	ocl_event_times(event, "Kernel Exec ");
+        ocl_event_times(event, "Kernel Exec ");
  
-        // Read back d_b (it turns out that even with use host ptr, we still need this
-        // at least on Adreno and Mali GPU)
-	queue.enqueueReadBuffer(d_b, CL_TRUE, 0, bytes, out_data);
 #ifdef __CL_ENABLE_EXCEPTIONS
     } catch (cl::Error err) {
          std::cerr

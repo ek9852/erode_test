@@ -81,11 +81,19 @@ int main(int argc, char *argv[])
 #ifdef CL_MEM_USE_MSMC_TI
     std::cout << "=== Testing tidsp cl erode 3x3" << std::endl;
     memset(h_c, 0, w*h);
-    erode3x3_tidsp_cl_init(w, h, true);
+    erode3x3_tidsp_cl_init(w, h);
+    // mapping to device buffer
+    uint8_t *d_a = erode3x3_tidsp_cl_map_input_buf();
+    memcpy(d_a, h_a, w*h);
+    erode3x3_tidsp_cl_unmap_input_buf(d_a);
     start_pmu_counters();
-    erode3x3_tidsp_cl(h_a, h_c, w, h);
+    erode3x3_tidsp_cl();
     stop_pmu_counters();
     print_pmu_counters();
+    // mapping to device buffer
+    uint8_t *d_b = erode3x3_tidsp_cl_map_output_buf();
+    memcpy(h_c, d_b, w*h);
+    erode3x3_tidsp_cl_unmap_output_buf(d_b);
     erode3x3_tidsp_cl_destroy();
 
     // compare c and tidsp opencl implementation
