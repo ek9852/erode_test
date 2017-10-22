@@ -4,7 +4,14 @@
 #include <iostream>
 #include <stdio.h>
 #include <time.h>
+#include <string.h>
 #include "erode_cl.h"
+#ifndef __APPLE__
+#include <CL/cl_ext.h>
+#ifdef CL_MEM_USE_MSMC_TI
+#include "erode_tidsp_cl.h"
+#endif
+#endif
 #include "erode.h"
 #include "pmu_utils.h"
 #if defined(__ARM_NEON__) || defined(__aarch64__)
@@ -50,6 +57,50 @@ int main(int argc, char *argv[])
     stop_pmu_counters();
     print_pmu_counters();
 
+    std::cout << "=== Testing cl erode 3x3" << std::endl;
+    erode3x3_cl_init(w, h, true);
+    start_pmu_counters();
+    erode3x3_cl(h_a, h_c, w, h);
+    stop_pmu_counters();
+    print_pmu_counters();
+    erode3x3_cl_destroy();
+
+    // compare c and opencl implementation
+    // TODO opencl does not handle edge case currently, skip those
+    for (int j = 1; j < h-1; j++) {
+        for (int i = 1; i < (w-2)/8*8 + 1; i++) {
+            if (h_b[j*w + i] != h_c[j*w + i]) {
+                std::cout << "Not equal @" << i << "," << j << std::endl;
+                std::cout << " [" <<  (int)h_b[j*w + i] << "," <<  (int)h_c[j*w + i] << "]" << std::endl;
+                return 1;
+            }
+        }
+    }
+    std::cout << "C and opencl implementation equals" << std::endl;
+
+#ifdef CL_MEM_USE_MSMC_TI
+    std::cout << "=== Testing tidsp cl erode 3x3" << std::endl;
+    memset(h_c, 0, w*h);
+    erode3x3_tidsp_cl_init(w, h, true);
+    start_pmu_counters();
+    erode3x3_tidsp_cl(h_a, h_c, w, h);
+    stop_pmu_counters();
+    print_pmu_counters();
+    erode3x3_tidsp_cl_destroy();
+
+    // compare c and tidsp opencl implementation
+    for (int j = 0; j < h; j++) {
+        for (int i = 0; i < w; i++) {
+            if (h_b[j*w + i] != h_c[j*w + i]) {
+                std::cout << "Not equal @" << i << "," << j << std::endl;
+                std::cout << " [" <<  (int)h_b[j*w + i] << "," <<  (int)h_c[j*w + i] << "]" << std::endl;
+                return 1;
+            }
+        }
+    }
+    std::cout << "C and tidsp opencl implementation equals" << std::endl;
+#endif
+
 #ifdef __ANDROID__
     std::cout << "=== Testing renderscript erode 3x3" << std::endl;
     erode3x3_rs_init(w, h);
@@ -73,27 +124,6 @@ int main(int argc, char *argv[])
     std::cout << "C and renderscript implementation equals" << std::endl;
 
 #endif
-
-    std::cout << "=== Testing cl erode 3x3" << std::endl;
-    erode3x3_cl_init(w, h, true);
-    start_pmu_counters();
-    erode3x3_cl(h_a, h_c, w, h);
-    stop_pmu_counters();
-    print_pmu_counters();
-    erode3x3_cl_destroy();
-
-    // compare c and opencl implementation
-    // TODO opencl does not handle edge case currently, skip those
-    for (int j = 1; j < h-1; j++) {
-        for (int i = 1; i < (w-2)/8*8 + 1; i++) {
-            if (h_b[j*w + i] != h_c[j*w + i]) {
-                std::cout << "Not equal @" << i << "," << j << std::endl;
-                std::cout << " [" <<  (int)h_b[j*w + i] << "," <<  (int)h_c[j*w + i] << "]" << std::endl;
-                return 1;
-            }
-        }
-    }
-    std::cout << "C and opencl implementation equals" << std::endl;
 
 #if defined(__x86_64__)
     std::cout << std::endl << "=== Testing sse erode 3x3" << std::endl;

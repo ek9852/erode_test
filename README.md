@@ -1,4 +1,4 @@
-OpenCL/OpenGL/NEON/SSE/Halide/Renderscript erode (3x3) performance test program
+OpenCL/TI DSP C66x OpenCL/OpenGL/NEON/SSE/Halide/Renderscript erode (3x3) performance test program
 =============================================================================
 
 This package implements erode 3x3
